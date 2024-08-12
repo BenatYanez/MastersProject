@@ -1,0 +1,19 @@
+#!/bin/bash
+
+#Obtain only the SNPs found in the PCR amplified region(chr15:6301177-6302042), for mediterranean genomes and other reference genomes
+#Need to first run 'sconda MastersProject'
+
+#Grid Engine options (lines prefixed with )
+#$ -N Diagnostic SNPs                                                                    #Name of job in 'wstat' list
+#$ -V                                                                                    #Pass current environm Run file from current working
+#$ -cwd
+#$ -l h=c3
+#$ -pe smp 1
+#$ -o /data/martin/genomics/analyses/Danaus_popgen/Benat_project/scripts/output/          #Folder for STDOUT print
+#$ -e /data/martin/genomics/analyses/Danaus_popgen/Benat_project/scripts/error/           #Folder for STDERR print
+
+#Generate the vcf with just the PCR amplified region
+bcftools view -S  /data/martin/genomics/analyses/Danaus_popgen/Benat_project/scripts/DiagnosticSamples.txt --force-samples -r chr15:6301177-6302042 -v snps /data/martin/genomics/analyses/Danaus_popgen/europe/2_variants/filt_chromosomes/eu40.vs.dchry2.3.chr15.GQ20.DP8.vcf.gz -o /data/martin/genomics/analyses/Danaus_popgen/Benat_project/data/vcfs/dchry2.3.chr15.PCRAmplification.3Genotypes.vcf.gz
+
+#rsync -av /scratch/byanez/dchry2.3.chr15.PCRAmplification.3Genotypes.vcf.gz  /data/martin/genomics/analyses/Danaus_popgen/Benat_project/data/vcfs/
+#rm /scratch/byanez/dchry2.3.chr15.PCRAmplification.3Genotypes.vcf.gz
