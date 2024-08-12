@@ -1,14 +1,19 @@
+
+#Using the SNPs from the PCR amplified region, identify diagnostic sites to differentiate the Chysippus,Mediterranean and Orientis allele using genome data
+#Open file of diagnostic SNPs obtained with the X code
 DiagnosticSites<-read.table(file="data/dchry2.3.chr15.PCRAmplification.3Genotypes.vcf",sep="\t", header=T)
 DiagnosticSites<-DiagnosticSites[,-c(1,3,6,7,8,9)]
 library(dplyr)
 library(tidyr)
-
+#Just obtain the names of the samples from the columns in the VCF
 SampleNames<-colnames(DiagnosticSites)[-c(1,2,3)]
+#Remove all data except for genotypes from each cell
 for (i in 4:33) {
   
   DiagnosticSites<-separate(data=DiagnosticSites,col=i, into = c(paste(colnames(DiagnosticSites)[i],"Genotype",sep=""),NA), 
                             sep = ":", remove = T)
 }
+#Separate 0/1 genotypes into two columns , one column with 0 and another with 1
 j<-1
 for (x in (colnames(DiagnosticSites)[c(-1,-2,-3)])) {
   
@@ -16,31 +21,32 @@ for (x in (colnames(DiagnosticSites)[c(-1,-2,-3)])) {
                             sep = "/", remove = FALSE)
   j<-j+1
 }
-
+#Separate the alternate allele into 2 columns, so that if the site is tri-allelic the Alelle3 columns has that base 
 DiagnosticSites<-separate(data=DiagnosticSites,col=c("ALT"), into = c("Allele2", "Allele3"), 
                           sep = ",", remove = TRUE)
 
+#Substitute the 0,1,2 with bases. A genotype of 0 represents the Reference allele, 1 is Allele2 and 2 is Allele3
 for (i in 1:nrow(DiagnosticSites)) {
   DiagnosticSites[i,which(DiagnosticSites[i,] == 1 )] <-DiagnosticSites[i,3]
   DiagnosticSites[i,which(DiagnosticSites[i,] == 0 )]<-DiagnosticSites[i,2]
   DiagnosticSites[i,which(DiagnosticSites[i,] == 2 )]<-DiagnosticSites[i,4]
   
 }
-#DiagnosticSites_v2<-DiagnosticSites[,c(1,6,7,9,10,12,13,15,16)]
-write.table(DiagnosticSites,file="DiagnosticSitesAllSamples.txt")
+#Save the Diagnostic sites
+write.table(DiagnosticSites,file="results/DiagnosticSitesAllSamples.txt")
+#Preparet the dataframe to plot
 library(reshape2) 
-
 data_mod <- melt(DiagnosticSites, id.vars='POS',  
                  measure.vars=colnames(DiagnosticSites)[-c(1:4,seq(5,94,by=3))])
 data_mod[which(data_mod$value == "."),3]<-NA
 
 colnames(data_mod)<- c("POS","SampleChromosome","Base")
-data_mod_SM19SY01 <- melt(DiagnosticSites, id.vars='V2',  
-                          measure.vars=c('SM17FV05C1', 'SM17FV05C2',"SM19SY06C1","SM19SY06C2","RV22449C1","RV22449C2","RV12N317C1","RV12N317C2","SM16N01C1","SM16N04C1","RV22450C1","RV22450C2","RV22452C1","RV22452C2"))
-data_mod_SM19SY01[which(data_mod_SM19SY01$value == "."),3]<-NA
+#data_mod_SM19SY01 <- melt(DiagnosticSites, id.vars='V2',  
+                #          measure.vars=c('SM17FV05C1', 'SM17FV05C2',"SM19SY06C1","SM19SY06C2","RV22449C1","RV22449C2","RV12N317C1","RV12N317C2","SM16N01C1","SM16N04C1","RV22450C1","RV22450C2","RV22452C1","RV22452C2"))
+#data_mod_SM19SY01[which(data_mod_SM19SY01$value == "."),3]<-NA
 
 library(ggplot2)
-
+#Plot all the sites
 ggplot(data_mod,aes(x=POS,y=SampleChromosome))+
   geom_point(aes(size=SampleChromosome,alpha=0.5,shape=Base,fill=Base,colour=Base)) +
   theme_bw()+
@@ -50,9 +56,11 @@ ggplot(data_mod,aes(x=POS,y=SampleChromosome))+
   scale_size_manual(values=rep(3,length(unique(data_mod$SampleChromosome)))) +
   guides(size=FALSE, alpha=F)+
   scale_shape_manual(values = c(15,16,17,18,25))
-ggsave("results/SNPPCR_AllSamples.png",width=13,height=8)
-unique(data_mod$SampleChromosome)
-ggplot(data_mod[which(data_mod$SampleChromosome == "RV22449C1" | data_mod$SampleChromosome == "RV22449C2"),],aes(x=POS,y=SampleChromosome))+
+ggsave("results/SNPPCR_AllSamples.pdf",width=15,height=9,units="cm")
+
+#Plot only a particular region, which can differentiate the 3 alleles
+#ggplot(data_mod[which(data_mod$SampleChromosome == "RV22449C1" | data_mod$SampleChromosome == "RV22449C2"),],aes(x=POS,y=SampleChromosome))+
+ggplot(data_mod,aes(x=POS,y=SampleChromosome))+
   geom_point(aes(size=SampleChromosome,alpha=0.5,shape=Base,fill=Base,colour=Base)) +
   theme_bw()+
   xlab("Site")+
@@ -63,13 +71,13 @@ ggplot(data_mod[which(data_mod$SampleChromosome == "RV22449C1" | data_mod$Sample
   scale_size_manual(values=rep(3,length(unique(data_mod$SampleChromosome)))) +
   guides(size=FALSE, alpha=F)+
   scale_shape_manual(values = c(15,16,17,18,25))
-data_mod[data_mod$POS<6301957 & data_mod$POS > 6301891,]
-ggsave("results/SNPSinPCR_EnhancedRegion_AllSamples.png",width=13,height=8)
+ggsave("results/SNPSinPCR_EnhancedRegion_AllSamples.pdf",width=15,height=9,units="cm")
 ########Hardy Weinberg#####
-#Two Alleles, Mediterranean African Based on PCA
-HomMed<-3+6+2 #Second number is from genotyping PCR
+#Using the allele frequencies from from the genomes and using Sanger sequencing calculate deviations from Hardy Weinberg
+#Two Alleles, Mediterranean African, Looking at the Supergene as a whole
+HomMed<-3+6+2 #First number is from genomes, 2nd and 3rd from Sanger sequences
 HomAfr<-11+16+16
-Het<-12+20+6 #Not entirely sure these numbers are correct
+Het<-12+20+6 
 Individuals<-HomMed+HomAfr+Het
 PObsFreq<-(2*(HomAfr)+Het)/(2*(HomMed+HomAfr+Het))
 QObsFreq<-1-PObsFreq
@@ -79,9 +87,9 @@ ExpHet<-2*PObsFreq*QObsFreq*Individuals
 Expected<-c(ExpHomAfr,ExpHet,ExpHomMed)
 Observed<-c(HomAfr,Het,HomMed)
 Results<-data.frame(Observed,Expected)
-Test<-sum(((Observed-Expected)^2)/Expected) #Chis-qr stat 0.00249
+Test<-sum(((Observed-Expected)^2)/Expected) #Chis-qr stat 0.3335784
 
-#Three Alleles, Mediterranean, Chrysippus, Orientis-Like  
+#Three Alleles, Mediterranean, Chrysippus, Orientis-Like. Just looking at the B locus  
 HomMed<-3+6+2
 HomOr<-3+9+11
 HomChr<-3+6+1
@@ -102,10 +110,5 @@ ExpHetOrChr<-2*OrObsFreq*ChrObsFreq*Individuals
 Expected<-c(ExpHomMed,ExpHomOr,ExpHomChr,ExpHetMedOr,ExpHetMedChr,ExpHetOrChr)
 Observed<-c(HomMed,HomOr,HomChr,HetMedOr,HetMedChr,HetOrChr)
 Results<-data.frame(Observed,Expected)
-Test<-chisq.test(Results) #0.8789 Not significant
-Test<-sum((((HomMed-ExpHomMed)^2)/ExpHomMed)+(((HomOr-ExpHomOr)^2)/ExpHomOr)+(((HomChr-ExpHomChr)^2)/ExpHomChr)+(((HetMedOr-ExpHetMedOr)^2)/ExpHetMedOr)+(((HetMedChr-ExpHetMedChr)^2)/ExpHetMedChr)+(((HetOrChr-ExpHetOrChr)^2)/ExpHetOrChr))
 Test<-sum(((Observed-Expected)^2)/Expected) #13.769
 #2 df
-library(HardyWeinberg)
-HWChisq(y)
-plot(x=DiagnosticSites$V2,y=as.numeric(DiagnosticSites$SM17FV05C1))

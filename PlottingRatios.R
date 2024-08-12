@@ -1,46 +1,46 @@
+#Plot the 0fold/4fold dievrsity ratios as boxplots
+#The ratios wereobatined with the DiversityRatio.R script
+#Open and structure the data for the supegren region, the genome and the 3 supergene arrangements
 
-size<-100
-RatiosInversion <-read.table(file=paste("Inversion_Ratios_",size,"kb.txt",sep="" ),sep="", header=T)
-RatiosInversion$GenomeRegion<-rep("Supergene",nrow(RatiosInversion))
-RatiosInversion <-na.exclude(RatiosInversion)
+RatiosSupergene <-read.table(file="Inversion_Ratios_100kb.txt",sep="", header=T)
+RatiosSupergene$GenomeRegion<-rep("Supergene",nrow(RatiosSupergene))
+RatiosSupergene <-na.exclude(RatiosSupergene) #Remove windows with no ratio
 #
-RatiosInversionHom1<-read.table(file=paste("Separate_InversionHom1_Ratios_",size,"kb.txt",sep="" ),sep="", header=T)
-RatiosInversionHom1$GenomeRegion<-rep("Chrysippus Homozygote",nrow(RatiosInversionHom1))
-RatiosInversionHom1 <-na.exclude(RatiosInversionHom1)
-colnames(RatiosInversionHom1) <-c("scaffold","start","end","sites","zero_four_ratio_Inv","GenomeRegion")
+RatiosSupergeneHom1<-read.table(file="Separate_InversionHom1_Ratios_100kb.txt",sep="", header=T)
+RatiosSupergeneHom1$GenomeRegion<-rep("Chrysippus Homozygote",nrow(RatiosSupergeneHom1))
+RatiosSupergeneHom1 <-na.exclude(RatiosSupergeneHom1)#Remove windows with no ratio
+colnames(RatiosSupergeneHom1) <-c("scaffold","start","end","sites","zero_four_ratio_Inv","GenomeRegion")
 
-RatiosInversionHom2<-read.table(file=paste("Separate_InversionHom2_Ratios_",size,"kb.txt",sep="" ),sep="", header=T)
-RatiosInversionHom2$GenomeRegion<-rep("Mediterranean Homozygote",nrow(RatiosInversionHom2))
-RatiosInversionHom2 <-na.exclude(RatiosInversionHom2)
-colnames(RatiosInversionHom2) <-c("scaffold","start","end","sites","zero_four_ratio_Inv","GenomeRegion")
-RatiosInversionHet<-read.table(file=paste("Separate_InversionHet_Ratios_",size,"kb.txt",sep="" ),sep="", header=T)
-RatiosInversionHet$GenomeRegion<-rep("Heterozygote",nrow(RatiosInversionHet))
-RatiosInversionHet <-na.exclude(RatiosInversionHet)
-colnames(RatiosInversionHet) <-c("scaffold","start","end","sites","zero_four_ratio_Inv","GenomeRegion")
+RatiosSupergeneHom2<-read.table(file="Separate_InversionHom2_Ratios_100kb.txt",sep="", header=T)
+RatiosSupergeneHom2$GenomeRegion<-rep("Mediterranean Homozygote",nrow(RatiosSupergeneHom2))
+RatiosSupergeneHom2 <-na.exclude(RatiosSupergeneHom2)#Remove windows with no ratio
+colnames(RatiosSupergeneHom2) <-c("scaffold","start","end","sites","zero_four_ratio_Inv","GenomeRegion")
+RatiosSupergeneHet<-read.table(file="Separate_InversionHet_Ratios_100kb.txt",sep="", header=T)
+RatiosSupergeneHet$GenomeRegion<-rep("Heterozygote",nrow(RatiosSupergeneHet))
+RatiosSupergeneHet <-na.exclude(RatiosSupergeneHet)#Remove windows with no ratio
+colnames(RatiosSupergeneHet) <-c("scaffold","start","end","sites","zero_four_ratio_Inv","GenomeRegion")
 
-RatiosGenome <-read.table(file=paste("data/ZeroFour_Ratios_",size,"kb.txt",sep="" ),sep="", header=T)
+RatiosGenome <-read.table(file="data/ZeroFour_Ratios_100kb.txt",sep="", header=T)
 RatiosGenome$GenomeRegion<-rep("Genome",nrow(RatiosGenome))
 RatiosGenome <-na.exclude(RatiosGenome)
 #Remove Inversion Windows
 RatiosGenome <-RatiosGenome[-c(700:710),]
 #RepeatWindows <-which(RatiosGenome$sites == RatiosInversion$sites)
 
-Ratios<-rbind(RatiosGenome,RatiosInversion)
-Ratios3Invers<-rbind(RatiosInversionHom1,RatiosInversionHom2,RatiosInversionHet)
-Ratios3Invers$LogRatioInver<-log(Ratios3Invers$zero_four_ratio_Inv)
+Ratios<-rbind(RatiosGenome,RatiosSupergene)
+Ratios3Supergene<-rbind(RatiosSupergeneHom1,RatiosSupergeneHom2,RatiosSupergeneHet)
+Ratios3Supergene$LogRatioInver<-log(Ratios3Supergene$zero_four_ratio_Inv) #Log transform the ratios
 Ratios$LogRatioMed<-log(Ratios$zero_four_ratio_Med)
 Ratios$LogRatioAfr<-log(Ratios$zero_four_ratio_Afr)
 #Ratios<-Ratios[c(-850,-927),]
-
-t.test(LogRatioMed ~ GenomeRegion,data=Ratios,alternative="less" )
+#T-test comparing the ratio between genomes of different regions, between genome and supergene of Mediterranean samples, and supergene of different regions
 t.test(Ratios[Ratios$GenomeRegion == "Genome",5],Ratios[Ratios$GenomeRegion == "Genome",6])
 t.test(Ratios[Ratios$GenomeRegion == "Supergene",5],Ratios[Ratios$GenomeRegion == "Genome",5])
 t.test(Ratios[Ratios$GenomeRegion == "Supergene",5],Ratios[Ratios$GenomeRegion == "Supergene",6])
 
-model2 <-  lm(LogRatioMed ~ GenomeRegion,data=Ratios )
-model1 <-  lm(zero_four_ratio_Inv ~ GenomeRegion,data=Ratios3Invers)
+#Compare the ratios for 3 supergene arrangements
+model1 <-  lm(zero_four_ratio_Inv ~ GenomeRegion,data=Ratios3Supergene)
 summary(model1)
-summary(model2)
 plot(model1)
 #Create a modified data
 library(reshape2) 
@@ -48,16 +48,15 @@ library(reshape2)
 data_mod <- melt(Ratios, id.vars='GenomeRegion',  
                   measure.vars=c('LogRatioAfr','LogRatioMed'))
 
-data_modInvers <- melt(Ratios3Invers, id.vars='GenomeRegion',  
+data_modInvers <- melt(Ratios3Supergene, id.vars='GenomeRegion',  
                  measure.vars=c('LogRatioInver'))
 
 data_mod_NotLog <- melt(Ratios, id.vars='GenomeRegion',  
                         measure.vars=c('zero_four_ratio_Med','zero_four_ratio_Afr')) 
 
-model1<-lm(LogRatio~Region, data=Ratios)
 library(ggplot2)
 library(paletteer)
-
+#Plot the results
 levels(data_mod$variable) <- c('African','Mediterranean')
 
 data_modInvers$variable <-c("Supergene Genotypes")
@@ -104,23 +103,5 @@ ggplot(data_mod, aes(x=variable, y=value)) +
   geom_line(data = line, aes(variable-0.10, value-1)) +
   scale_colour_paletteer_d("vangogh::Chaise")+
   scale_y_continuous(limits= c(-5,2)) #For not logged 0-2.5, for Logged -5 2
-  ggsave(paste("results/",size,"kbRatiosResultsLoged3Invers_v1.pdf",sep=""),width=15,height=15,units="cm")
-  #scale_fill_manual(col=c("#5b942f","#2f6f94"))
-
-
-  ggplot(Ratios, aes(x=Region, y=zero_four_ratio)) +
-    #scale_y_continuous(breaks= seq(0,260,20)) +
-    theme_bw() +
-    theme(legend.position = c(.95, .95),
-          legend.justification = c("right", "top"),
-          legend.box.just = "right",
-          legend.margin = margin(6, 6, 6, 6),
-          legend.text = element_text(size = 18), 
-          legend.title = element_text(size = 22),
-          legend.key.size =unit(1, 'cm')) +
-    geom_boxplot(width=0.4,size=0.9,aes(colour=Region))+
-    ylab(expression(Log~(pi[0]/pi[4])))+
-    scale_colour_manual(values=c("#5b942f","#2f6f94"))
-   # scale_y_continuous(limits= c(-6.5,1))
-  ggsave(paste("results/",size,"kbRatios.png",sep=""))
+  ggsave("results/100kbRatiosResultsLoged3Invers_v1.pdf",width=15,height=15,units="cm")
   #scale_fill_manual(col=c("#5b942f","#2f6f94"))

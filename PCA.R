@@ -1,7 +1,8 @@
-#DO A PCA of the inverted region
+#Plot the PCA for the supergene region. The results were obtained with X code
 PCA<-read.table(file="data/pca.eu40.vs.dchry2.3.Inversion.csv",sep=",",header=T)
 colnames(PCA)[1]<-("Samples")
 library(ggplot2)
+#Plot the 1st and 2nd proncipal components agianst each other, as they explain the highest variance
 ggplot(PCA, aes(x=PC1, y=PC2,col=Samples)) +
   geom_point(size=3) +
   scale_colour_manual(values=c("#3F858C","#3F858C","#3F858C","#707322","#3F858C","#3F858C","#707322","#707322","#707322","#3F858C","#707322","#3F858C","#F2D43D","#707322","#3F858C","#F2D43D","#707322","#F2D43D","#707322","#3F858C","#3F858C","#3F858C","#707322","#3F858C","#707322","#3F858C","#707322","#707322"))+

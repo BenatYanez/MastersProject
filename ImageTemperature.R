@@ -1,13 +1,15 @@
 library(jpeg)
 library("exiftoolr")
 library("tidyverse")
-image<- image[162:801,332:971,]
-plot(image)
+
 ######
 TemperatureData<-data.frame()
 v<-1
 CenterX  <- c(651,652,653)
 CenterY<- c(480,481,482)
+#Each day I measured temperature had different background temperature, upper limits and lower limits. 
+#So each batch establishes which individuals I ran, which data they were measured and the abckgrounda nd limit temperatures
+#To run the code craete the vectors for one Batch and then run the For loop bellow, then do the next batch an run the loop again 
 #June 3th Background 22ºC Limits 18.4ºC-38ºC
 Date<- c("03_06_2024")
 Batch<- c(9,19,12,5)
@@ -46,12 +48,14 @@ BackgroundReal<-25
 Upper<-30.6
 Lower<-10.2
 #######
+#The data consists of folders for the 4 days, with another folder for each individual measured that day
+#Each folder then has all the thermal images for one run
 Range<-Upper-Lower
 for (j in Batch) { 
-  my_dir <- path.expand(paste("data/ThermalImages/",Date,"/",j,"/",sep=""))
+  my_dir <- path.expand(paste("data/ThermalImages/",Date,"/",j,"/",sep="")) #Determine where the photos are for each batch
   file_names<- list.files(path=my_dir, pattern = "*.JPG")
-  creation_dates <- paste0(my_dir,file_names)    %>% 
-    lapply(function(x) exif_read(x)$FileModifyDate) %>% 
+  creation_dates <- paste0(my_dir,file_names)    %>% #The next few lines obtain the time the picture was taken from its metadata
+    lapply(function(x) exif_read(x)$FileModifyDate) %>% #the timepoint for the first picture is time 0, then for the next add the time between pictures
     unlist
   ModifyDates<- sub("01:00","",creation_dates)
   ModifyDates<- sub("[+]","",ModifyDates)
@@ -61,11 +65,11 @@ for (j in Batch) {
   Temp<-data.frame()
 
   for (x in file_names) { 
-    image<- readJPEG(paste(my_dir,x,sep=""))
-    CenterImage<-mean(image[CenterY,CenterX,])
-    Background<-Lower+Range*median(image[162:801,332:971,])
-    Correction<-BackgroundReal-Background
-    Temp[x,1]<-Lower+Range*CenterImage+ Correction
+    image<- readJPEG(paste(my_dir,x,sep="")) #Open a picture as a raster
+    CenterImage<-mean(image[CenterY,CenterX,]) #Obtain the pixel value of the center
+    Background<-Lower+Range*median(image[162:801,332:971,]) #Obtain the tempeature of the Background from its pixel value
+    Correction<-BackgroundReal-Background #Correct the temperature based on the difference between infered and real background temperature
+    Temp[x,1]<-Lower+Range*CenterImage+ Correction #Calculate temperature of the center
     Temp[x,2]  <- Times[1+n]-Times[1]
     n<-n+1
     Temp[x,3]<-j
@@ -77,11 +81,11 @@ for (j in Batch) {
 }
 
 TemperatureData$Sample<-gsub("_2","",TemperatureData$Sample)
-
+#Save results
 colnames(TemperatureData)<-(c("Temperature","Time","Sample","Date","Run"))
 write.csv(TemperatureData,"results/Results.csv")
 ####### 
-#Clugii data
+#Clugii data, Different morph
 #June 6th Background 25ºC Limits 10.2ºC-30.6ºC
 Date<- c("06_06_2024")
 Batch<- c("1","2","3","4","2_2","3_2","4_2")
