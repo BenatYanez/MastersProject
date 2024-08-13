@@ -1,5 +1,5 @@
 #Plot the 0fold/4fold dievrsity ratios as boxplots
-#The ratios wereobatined with the DiversityRatio.R script
+#The ratios wereobatined with the 0fold_4fold_ratio.R script
 #Open and structure the data for the supegren region, the genome and the 3 supergene arrangements
 
 RatiosSupergene <-read.table(file="Inversion_Ratios_100kb.txt",sep="", header=T)
