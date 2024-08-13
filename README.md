@@ -66,4 +66,85 @@ Summary of each Script:
  - Uses a .geno file of all the 4 fold sites in the supergene
  - Used if 0fold_4fold_diversitysupergene.sh did not work
 
+DiagnosticSNPs.sh
+ - Run on cluster
+ - Makes a subset of the SNPS from the PCR amplified region: Chromosome 15 from 6301177 to 6302042 
+ - These sites are used in HardyWeinberg.R to identify diagnostic SNPs that can differentiate between 3 alleles (Chrysippus, Orientis-like and Mediterranean)
 
+HardyWeinberg.R
+ - Run natively
+ - Using the genotypes from DiagnosticSNPs.sh, transforms them into bases (A,T,C,G)
+ - Plots these bases along the DNA sequence
+ - Using genotype frequencies from genome data and Sanger sequencing compare observed genotypes to expectations under Hardy-Weinberg using Chi-Squared test
+ - Do this for the supergene (Two Alleles: Chrysippus homozygote, Mediterranean homozygote, Heterozygote)
+ - Do this for the B locus (Three Alleles: Chrysippus homozygote, Mediterranean homozygote, Orientis-like homozygote, Chrysippus+Mediterranean heterozygote, Chrysippus+Orientis-like heterozygote, Mediterranean+Orientis-like heterozygote)
+
+ImageTemperature.R
+ - Run natively
+ - Uses the Thermal Images in the data folder
+ - Obtains the Temperature of the thorax from greyscale Thermal Images
+ - Creates a dataframe with a time series of the temperature for these images, all runs are stored in the same dataframe
+
+MakeBedFiles.R
+ - Run on the cluster
+ - Takes the bed files from 0fold_4fold_sites.sh and removes sites within the supergene to create a bed file for the genome
+ - Takes the bed files from 0fold_4fold_sites.sh and only selects sites within the supergene to create a bed file for the supergene
+
+PCA.R
+ - Run natively
+ - Uses the output from PCAInversionTypes.sh
+ - Plots the first and second principal components against each other to identify Chrysippus homozygotes, Mediterranean Homozygotes and Heterozygotes for the supergene
+
+PCAInversionTypes.py
+ - Run on the cluster
+ - Developed by Thomas Decroly
+ - Runs a Principal Compenent Analysis on the vcfs of the supergene region of the Mediterranean population
+
+PCAInversionTypes.sh
+ - Run on the cluster
+ - Runs PCAInversionTypes.py on the cluster
+
+PlottingRatios.R
+ - Run natively
+ - Uses the diversity Ratios in the data folder created by 0fold_4fold_ratio.R
+ - Plots the resulting ratio as a boxplot, separating results by geographic region (African, Mediterranean), genetic region (genome, supergene) and Sueprgene arrangement (Chrysippus homozygotes, Mediterranean Homozygotes and Heterozygotes)
+ - Uses Welch t-tests to determine whether there are statistical differences between these
+
+PowerAnalysis.R
+ - Run natively
+ - Part of the pilot study (During the Project Proposal phase)
+ - Samples groups of different sizes under different heterozygote advantages and compares these to expectations under Hardy-Weinber to determine the power to detect Heterozygote advantage
+
+SNPEffAnalysis.R
+ - Run natively
+ - Uses the output of UnifySnpEff.R
+ - Calcuates the ratio of HIGH impact variants to callable sites in 100kb windows for genome, supergene for the Mediterranean and African population and the three supergene arrangements (Chrysippus homozygotes, Mediterranean Homozygotes and Heterozygotes)
+ - Plots these as a boxplot
+ - Uses Welch t-tests to determine whether there are statistical differences between these
+
+StatisticalModels.R
+- Run natively
+- Uses the datframe made by ImageTemperature.R to analyse the results statistically
+- Runs a quadratic and log transformed mixed effect model accounting for temporal autocorrelation using glmmTMB
+- Does the same for a modified dataset where the starting point is temperature of 21ºC
+- Plots the results
+
+UnifySnpEff.R
+ - Run on the cluster
+ - Combines the files made by how_high.sh (One per chromosome) into a single file
+ - Does it for both the supergene and Genome
+
+how_high.py
+ - Run on the cluster
+ - Developed by Thomas Decroly
+ - Uses SNPEff annotated vcfs to return the allele frequency of high impact variants
+ - Ignores singletons
+   
+how_high.sh
+ - Run on the cluster
+ - Runs how_high.sh on the cluster for 100kb windows
+ - Uses an annotated vcf (obtained by snpEff.sh) , an annotation file (.gff3) and a csv with the names of the samples being analysed
+
+snpEff.sh
+ - Run on the cluster
+ - Uses SnpEff to annotate the genome vcf of each chromosome
