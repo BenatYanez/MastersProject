@@ -5,4 +5,6 @@ Much of the analysis uses code developed by Simon Martin found in (https://githu
 
 For the R code all the data to be able to run it should be in this repository in the data folder.
 The results folder contains the ouput of the R code and the figures as pdfs.
-
+Summary of each Script:
+0fold_4fold_diversity3supergenes.sh
+ -BLABLA 
