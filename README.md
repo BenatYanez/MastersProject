@@ -19,4 +19,4 @@ The R code all the data to be able to run it should be in this repository in the
 The results folder contains the ouput of the R code and the figures as pdfs.
 Summary of each Script:
 0fold_4fold_diversity3supergenes.sh
- -BLABLA 
+ - BLABLA 
