@@ -77,7 +77,7 @@ ggsave("results/SNPSinPCR_EnhancedRegion_AllSamples.pdf",width=15,height=9,units
 #Two Alleles, Mediterranean African, Looking at the Supergene as a whole
 HomMed<-3+6+2 #First number is from genomes, 2nd and 3rd from Sanger sequences
 HomAfr<-11+16+16
-Het<-12+20+6 
+Het<-12+20+7 
 Individuals<-HomMed+HomAfr+Het
 PObsFreq<-(2*(HomAfr)+Het)/(2*(HomMed+HomAfr+Het))
 QObsFreq<-1-PObsFreq
@@ -87,13 +87,13 @@ ExpHet<-2*PObsFreq*QObsFreq*Individuals
 Expected<-c(ExpHomAfr,ExpHet,ExpHomMed)
 Observed<-c(HomAfr,Het,HomMed)
 Results<-data.frame(Observed,Expected)
-Test<-sum(((Observed-Expected)^2)/Expected) #Chis-qr stat 0.3335784
+Test<-sum(((Observed-Expected)^2)/Expected) #Chis-qr stat 0.2201664
 
 #Three Alleles, Mediterranean, Chrysippus, Orientis-Like. Just looking at the B locus  
 HomMed<-3+6+2
 HomOr<-3+9+11
 HomChr<-3+6+1
-HetMedOr<-7+17+5
+HetMedOr<-7+17+6
 HetMedChr<-5+3+1
 HetOrChr<-5+1+4
 
@@ -110,5 +110,5 @@ ExpHetOrChr<-2*OrObsFreq*ChrObsFreq*Individuals
 Expected<-c(ExpHomMed,ExpHomOr,ExpHomChr,ExpHetMedOr,ExpHetMedChr,ExpHetOrChr)
 Observed<-c(HomMed,HomOr,HomChr,HetMedOr,HetMedChr,HetOrChr)
 Results<-data.frame(Observed,Expected)
-Test<-sum(((Observed-Expected)^2)/Expected) #13.769
+Test<-sum(((Observed-Expected)^2)/Expected) #13.950
 #2 df
